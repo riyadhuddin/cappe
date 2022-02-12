@@ -1,7 +1,29 @@
 import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import rose from './assets/rose1.png';
+import * as ImagePicker from 'expo-image-picker';
 export default function App() {
+  const [selectedImage, setSelectedImage] = React.useState(null);
+  let openImagePickerAsync = async () => { 
+    let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permissionResult.granted === false) {
+      alert("Permission to access camera roll is required!");
+      return;
+    }
+    let pickerResult = await ImagePicker.launchImageLibraryAsync();
+    if(pickerResult.cancelled === true){
+      return;
+    }
+    setSelectedImage({localuri: pickerResult.uri});
+    // console.log(pickerResult);
+  };
+  if(selectedImage !== null){
+  
+  return(
+    <View style={styles.container}>
+      <Image source={{uri: selectedImage.localuri}} style={styles.thumbnail}/>
+    </View>
+  );}
   return (
     <View style={styles.container}>
       <Image source={rose} style={styles.logo} />
@@ -9,7 +31,7 @@ export default function App() {
         To share a photo from your phone with a friend, just press the button below!
       </Text>
 
-      <TouchableOpacity onPress={() => alert('Hello, world!')} style={styles.button}>
+      <TouchableOpacity onPress={openImagePickerAsync} style={styles.button}>
         <Text style={styles.buttonText}>Pick a photo</Text>
       </TouchableOpacity>
     </View>
@@ -17,6 +39,11 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+  thumbnail:{
+    width:300,
+    height:300,
+    resizeMode: "contain",
+  },
   container: {
     flex: 1,
     backgroundColor: '#fff',
