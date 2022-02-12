@@ -1,7 +1,8 @@
 import React from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import rose from './assets/rose1.png';
 import * as ImagePicker from 'expo-image-picker';
+import * as Sharing from 'expo-sharing';
 export default function App() {
   const [selectedImage, setSelectedImage] = React.useState(null);
   let openImagePickerAsync = async () => { 
@@ -17,12 +18,23 @@ export default function App() {
     setSelectedImage({localuri: pickerResult.uri});
     // console.log(pickerResult);
   };
+  let openShareDialogAsync = async () => {
+    if(Platform.OS === 'web'){
+      alert('Cannot share from web');
+      return;
+    }
+    await Sharing.shareAsync(selectedImage.localuri);
+  };
   if(selectedImage !== null){
   
   return(
     <View style={styles.container}>
       <Image source={{uri: selectedImage.localuri}} style={styles.thumbnail}/>
+      <TouchableOpacity onPress={openShareDialogAsync} style={styles.button}>
+        <Text style={styles.buttonText}>Share this photo</Text>
+      </TouchableOpacity>
     </View>
+    
   );}
   return (
     <View style={styles.container}>
@@ -30,7 +42,6 @@ export default function App() {
       <Text style={styles.instructions}>
         To share a photo from your phone with a friend, just press the button below!
       </Text>
-
       <TouchableOpacity onPress={openImagePickerAsync} style={styles.button}>
         <Text style={styles.buttonText}>Pick a photo</Text>
       </TouchableOpacity>
