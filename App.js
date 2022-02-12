@@ -3,6 +3,7 @@ import { Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react
 import rose from './assets/rose1.png';
 import * as ImagePicker from 'expo-image-picker';
 import * as Sharing from 'expo-sharing';
+import uploadToAnonymousFilesAsync from 'anonymous-files';
 export default function App() {
   const [selectedImage, setSelectedImage] = React.useState(null);
   let openImagePickerAsync = async () => { 
@@ -15,12 +16,18 @@ export default function App() {
     if(pickerResult.cancelled === true){
       return;
     }
-    setSelectedImage({localuri: pickerResult.uri});
+    if(Platform.OS === 'web'){
+      let remoteUri = await uploadToAnonymousFilesAsync(pickerResult.uri);
+      setSelectedImage({localuri:pickerResult.uri, remoteUri: null});
+    }else{
+      setSelectedImage({localuri:pickerResult.uri, remoteUri: null});
+    }
+    
     // console.log(pickerResult);
   };
   let openShareDialogAsync = async () => {
     if(Platform.OS === 'web'){
-      alert('Cannot share from web');
+      alert('Cannot share from web ${selectedImage.localuri}');
       return;
     }
     await Sharing.shareAsync(selectedImage.localuri);
